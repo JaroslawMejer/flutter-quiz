@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'quiz_brain.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-
-QuizBrain quizBrain = QuizBrain();
+import 'screens/quizPage.dart';
 
 void main() => runApp(Quizzler());
 
@@ -14,139 +11,86 @@ class Quizzler extends StatelessWidget {
         backgroundColor: Colors.grey.shade900,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: QuizPage(),
-          ),
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Homepage(),
+                  )
+                ],
+              )),
         ),
       ),
     );
   }
 }
 
-class QuizPage extends StatefulWidget {
+class Homepage extends StatefulWidget {
   @override
-  _QuizPageState createState() => _QuizPageState();
+  _HomepageState createState() => _HomepageState();
 }
 
-class _QuizPageState extends State<QuizPage> {
-  List<Widget> scoreKeeper = [];
-
-  int correctAnswers = 0;
-  int allAnswers = 0;
-
-  void checkAnswer(bool userPickedAnswer) {
-    bool correctAnswer = quizBrain.getQuestionAnswer();
-    setState(() {
-      if (userPickedAnswer == correctAnswer) {
-        scoreKeeper.add(
-          Icon(
-            Icons.check,
-            color: Colors.green,
-          ),
-        );
-        correctAnswers++;
-      } else {
-        scoreKeeper.add(
-          Icon(
-            Icons.remove,
-            color: Colors.red,
-          ),
-        );
-      }
-      allAnswers++;
-      if (quizBrain.isFinished() == true) {
-        Alert(
-          context: context,
-          type: AlertType.success,
-          title: 'You\'ve done it!',
-          desc:
-              "That was the last question. Your score is $correctAnswers out of $allAnswers",
-          buttons: [
-            DialogButton(
-              child: Text(
-                'Thanks',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ).show();
-        finishQuiz();
-      } else {
-        quizBrain.nextQuestion();
-      }
-    });
-  }
-
-  void finishQuiz() {
-    setState(() {
-      quizBrain.resetQuiz();
-      scoreKeeper.clear();
-      correctAnswers = 0;
-      allAnswers = 0;
-    });
-  }
+class _HomepageState extends State<Homepage> {
+  bool mainPage = true;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Expanded(
-          flex: 5,
-          child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Center(
-              child: Text(
-                quizBrain.getQuestionText(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.white,
-                ),
+        Visibility(
+          visible: !mainPage,
+          child: Expanded(
+            child: QuizPage(),
+          ),
+        ),
+        Visibility(
+          visible: mainPage,
+          child: Expanded(
+            child: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      'Welcome to Quizzler!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Are you ready to begin?',
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: Text('Start'),
+                      color: Colors.amber,
+                      padding: EdgeInsets.all(20.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          mainPage = false;
+                        });
+                      },
+                    ),
+                  )
+                ],
               ),
             ),
           ),
         ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: FlatButton(
-              textColor: Colors.white,
-              color: Colors.green,
-              child: Text(
-                'True',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                ),
-              ),
-              onPressed: () {
-                checkAnswer(true);
-              },
-            ),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: FlatButton(
-              color: Colors.red,
-              child: Text(
-                'False',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.white,
-                ),
-              ),
-              onPressed: () {
-                checkAnswer(false);
-              },
-            ),
-          ),
-        ),
-        Row(children: scoreKeeper),
       ],
     );
   }
